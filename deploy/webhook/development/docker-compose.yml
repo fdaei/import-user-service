@@ -1,0 +1,27 @@
+services:
+  webhook-app:
+    build:
+      context: ../../..
+      dockerfile: ./deploy/webhook/development/Dockerfile
+    container_name: webhook-app
+    volumes:
+      - ../../..:/app
+    ports:
+      - "8090:8090"
+    networks:
+      - rankr-shared-development-network
+    environment:
+      - CONFIG_PATH=/app/deploy/webhook/development/config.yml
+      - WEBHOOK_POSTGRES_DB__HOST=shared-postgres
+      - WEBHOOK_POSTGRES_DB__PORT=5432
+      - WEBHOOK_POSTGRES_DB__USER=${WEBHOOK_USER:-webhook_user}
+      - WEBHOOK_POSTGRES_DB__PASSWORD=${WEBHOOK_PASS:-change_me_webhook}
+      - WEBHOOK_POSTGRES_DB__DB_NAME=webhook_db
+      - WEBHOOK_REDIS__HOST=shared-redis
+      - WEBHOOK_REDIS__PORT=6379
+      - WEBHOOK_NATS__URL=nats://shared-nats:4222
+    entrypoint: ["air", "-c", "/app/.air/.air.webhook.toml"]
+
+networks:
+  rankr-shared-development-network:
+    external: true

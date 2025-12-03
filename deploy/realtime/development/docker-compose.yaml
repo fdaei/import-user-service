@@ -1,0 +1,27 @@
+services:
+  realtime-app:
+    build:
+      context: ../../..
+      dockerfile: ./deploy/realtime/development/Dockerfile
+    container_name: realtime-app
+    volumes:
+      - ../../..:/app
+    ports:
+      - "8087:8081"
+      - "8097:8091"
+    networks:
+      - rankr-shared-development-network
+    environment:
+      - CONFIG_PATH=/app/deploy/realtime/development/config.yml
+      - realtime_POSTGRES_DB_HOST=shared-postgres
+      - realtime_POSTGRES_DB_USER=realtime_user
+      - realtime_POSTGRES_DB_PASSWORD=realtime_pass
+      - realtime_POSTGRES_DB_NAME=realtime_db
+      - realtime_POSTGRES_DB_PORT=5432
+      - realtime_REDIS_HOST=shared-redis
+      - realtime_NATS_URL=nats://shared-nats:4222
+    entrypoint: [ "air", "-c", "/app/.air/.air.realtime.toml" ]
+
+networks:
+  rankr-shared-development-network:
+    external: true

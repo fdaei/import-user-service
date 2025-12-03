@@ -1,0 +1,24 @@
+services:
+  # The main application service
+  leaderboardscoring-app:
+    build:
+      context: ../../.. # Build from the project root
+      dockerfile: ./deploy/leaderboardscoring/development/Dockerfile
+    container_name: leaderboardscoring-app
+    volumes:
+      - ../../..:/app
+    ports:
+      - "8080:8081" # HTTP port (host 8080 -> container 8081)
+      - "8090:8091" # gRPC port (host 8090 -> container 8091)
+    networks:
+      - rankr-shared-development-network
+    environment:
+      - CONFIG_PATH=/app/deploy/leaderboardscoring/development/config.yml
+      - LEADERBOARDSCORING_POSTGRES_DB_HOST=shared-postgres
+      - LEADERBOARDSCORING_REDIS_HOST=shared-redis
+      - LEADERBOARDSCORING_NATS_URL=nats://shared-nats:4222
+    entrypoint: [ "air", "-c", "/app/.air/.air.leaderboardscoring.toml" ]
+
+networks:
+  rankr-shared-development-network:
+    external: true
